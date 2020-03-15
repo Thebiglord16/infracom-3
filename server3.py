@@ -43,28 +43,27 @@ class ServerThread(threading.Thread):
                     envio = 1
                     for i in connections:
                         print("envio a cliente: " + str(enviados))
-                        f = open('nvm.mp4', 'rb')
+                        f = open('multimedia.mp4', 'rb')
                         f.seek(0, os.SEEK_END)
                         texto = str(f.tell())
                         f.close()
                         i.send(bytes(texto, encoding='utf8'))
-                        f = open('nvm.mp4', 'rb')
+                        f = open('multimedia.mp4', 'rb')
                         enviable = f.read(1024000)
                         envio = 0
                         while enviable:
-                            print("envio " + str(envio))
                             i.send(enviable)
                             enviable = f.read(1024000)
                             envio += 1
                         f.close()
                         succes = i.recv(1024)
+                        print(succes)
                         while succes == b'error':
                             print("reintentando")
-                            f = open('nvm.mp4', 'rb')
+                            f = open('multimedia.mp4', 'rb')
                             enviable = f.read(1024000)
                             envio = 0
                             while enviable:
-                                print("envio " + str(envio))
                                 i.send(enviable)
                                 enviable = f.read(1024000)
                                 envio += 1

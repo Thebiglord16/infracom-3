@@ -49,5 +49,6 @@ class ClientThread(Thread):
                 f.seek(0, os.SEEK_END)
                 sizer = str(f.tell())
                 f.close()
+            s.send(b"succes")
 
             print("Done Sending")
