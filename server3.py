@@ -38,9 +38,10 @@ class ServerThread(threading.Thread):
                     conn.send(bytes(texto, encoding='utf8'))
                     self.actual += 1
                     if self.cantidad == self.actual:
-                        enviados = 0
-                        while enviados < self.cantidad:
-                            f = open('multimedia.mp4', 'rb')
+                        enviados = 1
+                        envio = 1
+                        while enviados <= self.cantidad:
+                            f = open('nvm.mp4', 'rb')
                             enviable = f.read(1024000)
                             envio = 0
                             while enviable:
@@ -49,4 +50,4 @@ class ServerThread(threading.Thread):
                                 enviable = f.read(1024000)
                                 envio += 1
                             f.close()
-                            self.continuar.wait()
+                            enviados += 1

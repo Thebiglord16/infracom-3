@@ -21,10 +21,12 @@ class ClientThread(Thread):
             self.listo = True
             s.send(b"reciviendo")
             data = s.recv(1024000)
-            print("el cliente " + str(self.id) + " recibió: " + str(data))
             f = open('nuevo' + str(self.id) + '.mp4', 'wb')
             while data:
                 f.write(data)
-                data = s.recv(1024)
+                try:
+                    data = s.recv(1024000)
+                except Exception:
+                    break
             f.close()
             print("Done Sending")
