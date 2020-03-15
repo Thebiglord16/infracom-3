@@ -3,13 +3,16 @@ import threading
 
 
 class ServerThread(threading.Thread):
-    cantidad = 25
+    cantidad = 2
+    continuar = threading.Event()
     actual = 1
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
     def run(self):
         HOST = 'localhost'
         PORT = 65432
-
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        with s:
             # Crea un socket con la tupla host, puerto
             s.bind((HOST, PORT))
             # Hace que el servidor escuche peticiones en el puerto PORT
@@ -32,11 +35,16 @@ class ServerThread(threading.Thread):
                         break
                     # responde al mensaje, haciendo referencia a la espera de los demas clientes
                     texto = "recibido, esperando a los demas clientes " + str(self.actual) + "/" + str(self.cantidad)
-                    conn.sendall(bytes(texto, encoding='utf8'))
+                    conn.send(bytes(texto, encoding='utf8'))
                     self.actual += 1
-                    print(self.actual)
-                    if self.actual == self.cantidad:
-                        f = open('multimedia.mp4', 'wb')
-
-
-
+                    if self.cantidad > self.actual:
+                        enviados = 0
+                        while enviados < self.cantidad:
+                            self.continuar.wait()
+                            f = open('multimedia.mp4', 'rb')
+                            enviable = f.read(1024)
+                            while enviable:
+                                s.send(enviable)
+                                enviable = f.read(1024)
+                            f.close()
+                            self.continuar.wait()

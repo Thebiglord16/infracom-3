@@ -2,7 +2,7 @@ from server3 import ServerThread
 from cliente3 import ClientThread
 import threading
 
-numeroClientes = 25
+numeroClientes = 2
 HOST = 'localhost'
 hiloserver = ServerThread()
 hiloserver.start()
@@ -18,5 +18,8 @@ for cliente in listaClientes:
 while hiloserver.actual <= hiloserver.cantidad:
     pass
 for cliente in listaClientes:
+    hiloserver.continuar.set()
     cliente.continuar.set()
+
+
 

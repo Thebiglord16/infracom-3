@@ -3,6 +3,7 @@ import time
 import socket
 import threading
 
+
 class ClientThread(Thread):
     host = 'localhost'  # Get local machine name
     port = 65432  # Reserve a port for your service.
@@ -11,6 +12,7 @@ class ClientThread(Thread):
     id = -1
 
     def run(self):
+
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
             s.send(b"Listo para recibir!")
@@ -18,4 +20,9 @@ class ClientThread(Thread):
             print("recibido por el cliente con id: "+str(self.id), repr(data))
             self.listo = True
             self.continuar.wait()
+            data = s.recv(1024)
+            f = open('nuevo' + str(self.id) + '.mp4', 'wb')
+            while data:
+                f.write(data)
+            f.close()
             print("Done Sending")
