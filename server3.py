@@ -5,11 +5,11 @@ import threading
 class ServerThread(threading.Thread):
     cantidad = 2
     continuar = threading.Event()
-    actual = 1
+    actual = 0
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def run(self):
-        HOST = 'localhost'
+        HOST = '127.0.0.1'
         PORT = 65432
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         with s:
@@ -37,14 +37,16 @@ class ServerThread(threading.Thread):
                     texto = "recibido, esperando a los demas clientes " + str(self.actual) + "/" + str(self.cantidad)
                     conn.send(bytes(texto, encoding='utf8'))
                     self.actual += 1
-                    if self.cantidad > self.actual:
+                    if self.cantidad == self.actual:
                         enviados = 0
                         while enviados < self.cantidad:
-                            self.continuar.wait()
                             f = open('multimedia.mp4', 'rb')
-                            enviable = f.read(1024)
+                            enviable = f.read(1024000)
+                            envio = 0
                             while enviable:
-                                s.send(enviable)
-                                enviable = f.read(1024)
+                                print("envio " + str(envio))
+                                conn.send(enviable)
+                                enviable = f.read(1024000)
+                                envio += 1
                             f.close()
                             self.continuar.wait()

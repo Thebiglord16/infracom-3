@@ -5,7 +5,7 @@ import threading
 
 
 class ClientThread(Thread):
-    host = 'localhost'  # Get local machine name
+    host = '127.0.0.1'  # Get local machine name
     port = 65432  # Reserve a port for your service.
     listo = False
     continuar = threading.Event()
@@ -19,10 +19,12 @@ class ClientThread(Thread):
             data = s.recv(1024)
             print("recibido por el cliente con id: "+str(self.id), repr(data))
             self.listo = True
-            self.continuar.wait()
-            data = s.recv(1024)
+            s.send(b"reciviendo")
+            data = s.recv(1024000)
+            print("el cliente " + str(self.id) + " recibió: " + str(data))
             f = open('nuevo' + str(self.id) + '.mp4', 'wb')
             while data:
                 f.write(data)
+                data = s.recv(1024)
             f.close()
             print("Done Sending")
