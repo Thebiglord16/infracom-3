@@ -1,5 +1,5 @@
 from threading import Thread
-import time
+import os
 import socket
 import threading
 
@@ -20,6 +20,7 @@ class ClientThread(Thread):
             print("recibido por el cliente con id: "+str(self.id), repr(data))
             self.listo = True
             s.send(b"reciviendo")
+            size = s.recv(1024)
             data = s.recv(1024000)
             f = open('nuevo' + str(self.id) + '.mp4', 'wb')
             while data:
@@ -29,4 +30,24 @@ class ClientThread(Thread):
                 except Exception:
                     break
             f.close()
+            f = open('nuevo' + str(self.id) + '.mp4', 'rb')
+            f.seek(0, os.SEEK_END)
+            sizer = str(f.tell())
+            f.close()
+            while bytes(sizer, encoding='utf8') != size:
+                s.send(b"error")
+                data = s.recv(1024000)
+                f = open('nuevo' + str(self.id) + '.mp4', 'wb')
+                while data:
+                    f.write(data)
+                    try:
+                        data = s.recv(1024000)
+                    except Exception:
+                        break
+                f.close()
+                f = open('nuevo' + str(self.id) + '.mp4', 'rb')
+                f.seek(0, os.SEEK_END)
+                sizer = str(f.tell())
+                f.close()
+
             print("Done Sending")
