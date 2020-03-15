@@ -17,37 +17,39 @@ class ServerThread(threading.Thread):
             s.bind((HOST, PORT))
             # Hace que el servidor escuche peticiones en el puerto PORT
             s.listen()
-
+            connections = []
             # Mientras sigan llegando clientes y mensajes de los mismos
             while True:
                 # asigna un objeto socket a conn y la dirección del cliente aceptado en addt
                 conn, addr = s.accept()
+                connections.append(conn)
                 # el with crea un contexto en el que se asegura el cierre del socket aun cuando ocurre un error o se
                 # genera una excepción
-                with conn:
-                    print("connected by", addr)
-                    # Almacena el mensaje en data
-                    data = conn.recv(1024)
-                    # print(threading.enumerate())
-                    print("recibido por el servidor: ", repr(data))
-                    # si no recibe un mensaje, cancele la conexión
-                    if not data:
-                        break
-                    # responde al mensaje, haciendo referencia a la espera de los demas clientes
-                    texto = "recibido, esperando a los demas clientes " + str(self.actual) + "/" + str(self.cantidad)
-                    conn.send(bytes(texto, encoding='utf8'))
-                    self.actual += 1
-                    if self.cantidad == self.actual:
-                        enviados = 1
-                        envio = 1
-                        while enviados <= self.cantidad:
-                            f = open('nvm.mp4', 'rb')
+                print("connected by", addr)
+                # Almacena el mensaje en data
+                data = conn.recv(1024)
+                # print(threading.enumerate())
+                print("recibido por el servidor: ", repr(data))
+                # si no recibe un mensaje, cancele la conexión
+                if not data:
+                    break
+                # responde al mensaje, haciendo referencia a la espera de los demas clientes
+                texto = "recibido, esperando a los demas clientes " + str(self.actual) + "/" + str(self.cantidad)
+                conn.send(bytes(texto, encoding='utf8'))
+                self.actual += 1
+                if self.cantidad == self.actual:
+                    print(conn)
+                    enviados = 1
+                    envio = 1
+                    for i in connections:
+                        f = open('nvm.mp4', 'rb')
+                        enviable = f.read(1024000)
+                        envio = 0
+                        while enviable:
+                            print("envio " + str(envio))
+                            i.send(enviable)
                             enviable = f.read(1024000)
-                            envio = 0
-                            while enviable:
-                                print("envio " + str(envio))
-                                conn.send(enviable)
-                                enviable = f.read(1024000)
-                                envio += 1
-                            f.close()
-                            enviados += 1
+                            envio += 1
+                        f.close()
+                        enviados += 1
+                        i.close()
